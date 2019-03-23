@@ -1,11 +1,15 @@
 package pl.sda.Controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.stage.Stage;
 import pl.sda.Main;
 import pl.sda.Model.Person;
 
@@ -59,6 +63,12 @@ public class RootViewController implements Initializable {
 
     private Main main;
 
+    public void setMain(Main main) {
+        this.main = main;
+        personTabelView.setItems(main.getPersonlist());
+
+    }
+
     public RootViewController() {
 
     }
@@ -93,39 +103,48 @@ public class RootViewController implements Initializable {
     }
 
 
-    public Main getMain() {
-        return main;
-    }
-
-    public void setMain(Main main) {
-        this.main = main;
-        personTabelView.setItems(main.getPersonlist());
-
-    }
-
     @FXML
     private void handeldelt() {
         int selectedIndex = personTabelView.getSelectionModel().getSelectedIndex();
         personTabelView.getItems().remove(selectedIndex);
     }
-    @FXML
-    private void newPerson() throws IOException {
-        Person tempPerson = new Person();
-        boolean okClicked = main.showPersonEditDialog(tempPerson);
-        if (okClicked) {
-            main.getPersonlist().add(tempPerson);
-        }
-    }
+
 
     @FXML
     private void editPerson() throws IOException {
-        Person selectedPerson = personTabelView.getSelectionModel().getSelectedItem();
-        if (selectedPerson != null) {
-            boolean okClicked = main.showPersonEditDialog(selectedPerson);
-            if (okClicked) {
-                showPersonDetails(selectedPerson);
-            }
 
-        }
+        Stage editPerStage = new Stage();
+        FXMLLoader loader = new FXMLLoader();
+
+        loader.setLocation(getClass().getResource("/EditPerson.fxml"));
+        loader.load();
+
+        Parent root = loader.getRoot();
+
+        EditPersonController editPersonController = loader.getController();
+        editPersonController.setMain(main);
+        editPersonController.setSelectedPerosn(personTabelView.getSelectionModel().getSelectedItem());
+        editPersonController.initForm();
+        editPerStage.setTitle("Edit Person");
+        editPerStage.setScene(new Scene(root));
+        editPerStage.show();
+    }
+
+
+    public void newPerson() throws IOException {
+        Stage newPerStage = new Stage();
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/NewPerson.fxml"));
+        loader.load();
+
+        Parent root = loader.getRoot();
+
+        NewPersonController newPersonController = loader.getController();
+        newPersonController.setMain(main);
+
+
+        newPerStage.setTitle("Add new Person");
+        newPerStage.setScene(new Scene(root));
+        newPerStage.show();
     }
 }
